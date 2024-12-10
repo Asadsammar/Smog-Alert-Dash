@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smog Alert Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+</head>
+<body>
+    <h1>Smog Alert Dashboard</h1>
+    <label for="city">Select City:</label>
+    <select id="city" onchange="fetchPredictions()">
+        <option value="Lahore">Lahore</option>
+        <option value="Faisalabad">Faisalabad</option>
+        <option value="Gujranwala">Gujranwala</option>
+    </select>
+
+    <div id="chart"></div>
+
+    <script>
+        async function fetchPredictions() {
+            const city = document.getElementById('city').value;
+            const response = await fetch(`/api/predictions/${city}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            const trace1 = {
+                x: ['Day 1', 'Day 2', 'Day 3'],
+                y: data['PM2.5'],
+                name: 'PM2.5',
+                type: 'bar'
+            };
+
+            const trace2 = {
+                x: ['Day 1', 'Day 2', 'Day 3'],
+                y: data.PM10,
+                name: 'PM10',
+                type: 'bar'
+            };
+
+            const layout = {
+                title: `Smog Prediction for ${city}`,
+                barmode: 'group'
+            };
+
+            Plotly.newPlot('chart', [trace1, trace2], layout);
+        }
+
+        // Load default city predictions on page load
+        fetchPredictions();
+    </script>
+</body>
+</html>
